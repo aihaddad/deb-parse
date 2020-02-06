@@ -3,6 +3,7 @@ import re
 
 class DebianControlFileParser:
     """Parses Debian Control-File formats and exports to JSON"""
+
     def __init__(self, file):
         with open(file) as f:
             __file_text = f.read()
@@ -19,7 +20,6 @@ class DebianControlFileParser:
     def to_json(self, output="datastore/debian-packages.json"):
         pass
 
-
     # Private
     def __get_raw_info(self, text):
         """Parses a Debian control file and returns raw dictionary"""
@@ -34,10 +34,10 @@ class DebianControlFileParser:
 
         return pkg_dict
 
-
     def __get_useful_info(self, pkg_raw_info):
         """Cleans up raw parsed package information and filters unneeded"""
         pkg_name = pkg_raw_info["name"]
+        reverse_depends = self.__get_reverse_depends(pkg_name, self.raw_package_data)
         version, synopsis, description, depends, alt_depends = self.__get_useful_values(
             pkg_raw_info["details"]
         )
@@ -47,7 +47,8 @@ class DebianControlFileParser:
             "synopsis": synopsis,
             "description": description,
             "depends": depends,
-            "alt_depends": alt_depends
+            "alt_depends": alt_depends,
+            "reverse_depends": reverse_depends,
         }
         pkg_dict = {"name": pkg_name, "details": pkg_useful_details}
 
@@ -84,3 +85,14 @@ class DebianControlFileParser:
             depends, alt_depends = None, None
 
         return (version, synopsis, description, depends, alt_depends)
+
+    def __get_reverse_depends(self, pkg_name, pkg_dict_list):
+        """Gets the names of the packages that depend on the the current one"""
+        r_depends = []
+        for pkg in pkg_dict_list:
+            pkg_depends = pkg["details"].get("depends")
+            if pkg_depends is not None:
+                if pkg_name in pkg_depends:
+                    r_depends.append(pkg["name"])
+
+        return None if len(r_depends) == 0 else r_depends
