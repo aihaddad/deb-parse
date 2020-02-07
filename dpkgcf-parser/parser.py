@@ -2,31 +2,26 @@ import os
 import re
 import json
 
-from re import MULTILINE
-
 
 class DebianControlFileParser:
     """
     Parses Debian Control-File formats
 
     Exposes three attributes and one instance method:
-    - self.raw_package_info   ==> Outputs a dictionary object with values after initial parse
-    - self.clean_package_info ==> Outputs a dictionary object with only useful and clean values
-    - self.package_names      ==> Outputs a list object with only the names of the packages in file
-    - self.to_json_file()     ==> Dumps dictionary outputs to a JSON file
+    - self.raw_pkg_info   ==> Outputs a dictionary object with values after initial parse
+    - self.clean_pkg_info ==> Outputs a dictionary object with only useful and clean values
+    - self.pkg_names      ==> Outputs a list object with only the names of the packages in file
+    - self.to_json_file() ==> Dumps dictionary outputs to a JSON file
     """
 
     def __init__(self, file):
         with open(file, "r") as f:
             __file_text = f.read().strip()
+        packages = __file_text.split("\n\n")
 
-        self.raw_package_data = [
-            self.__get_raw_info(pkg) for pkg in __file_text.split("\n\n")
-        ]
-        self.clean_package_data = [
-            self.__get_clean_info(pkg) for pkg in self.raw_package_data
-        ]
-        self.package_names = [pkg["name"] for pkg in self.raw_package_data]
+        self.raw_pkg_info = [self.__get_raw_info(pkg) for pkg in packages]
+        self.clean_pkg_info = [self.__get_clean_info(pkg) for pkg in self.raw_pkg_info]
+        self.package_names = [pkg["name"] for pkg in self.raw_pkg_info]
 
     def to_json_file(self, outfile="./datastore/debian-packages.json", raw=False):
         """Converts parsed data into JSON and outputs to file"""
@@ -34,10 +29,10 @@ class DebianControlFileParser:
         try:
             if raw:
                 with open(outfile, "w") as f:
-                    json.dump(self.raw_package_data, f, indent=4)
+                    json.dump(self.raw_pkg_info, f, indent=4)
             else:
                 with open(outfile, "w") as f:
-                    json.dump(self.clean_package_data, f, indent=4)
+                    json.dump(self.clean_pkg_info, f, indent=4)
 
             print(f"SUCCESS: wrote to file {outfile}")
 
@@ -90,13 +85,13 @@ class DebianControlFileParser:
         version = raw_info["details"].get("version")
         long_description = raw_info["details"].get("description")
         pkg_depends = raw_info["details"].get("depends")
-        reverse_depends = self.__get_reverse_depends(pkg_name, self.raw_package_data)
+        reverse_depends = self.__get_reverse_depends(pkg_name, self.raw_pkg_info)
 
         if long_description is not None:
             split_description = tuple(long_description.split("\n", maxsplit=1))
             synopsis = split_description[0]
             description = (
-                re.sub(r"^\s", "", split_description[1], flags=MULTILINE)
+                re.sub(r"^\s", "", split_description[1], flags=re.MULTILINE)
                 if 1 < len(split_description)
                 else None
             )
@@ -106,7 +101,9 @@ class DebianControlFileParser:
         if pkg_depends is not None:
             depends_and_alt = pkg_depends.split(" | ")
             depends = depends_and_alt[0].split(", ")
-            alt_depends = depends_and_alt[1].split(", ") if 1 < len(depends_and_alt) else None
+            alt_depends = (
+                depends_and_alt[1].split(", ") if 1 < len(depends_and_alt) else None
+            )
         else:
             depends, alt_depends = None, None
 
