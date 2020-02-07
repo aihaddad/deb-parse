@@ -3,7 +3,7 @@ import re
 import json
 
 
-class DebianControlFileParser:
+class Parser:
     """
     Parses Debian Control-File formats
 
@@ -23,7 +23,7 @@ class DebianControlFileParser:
         self.clean_pkg_info = [self.__get_clean_info(pkg) for pkg in self.raw_pkg_info]
         self.package_names = [pkg["name"] for pkg in self.raw_pkg_info]
 
-    def to_json_file(self, outfile="./datastore/debian-packages.json", raw=False):
+    def to_json_file(self, outfile="./datastore/dpkgs.json", raw=False):
         """Converts parsed data into JSON and outputs to file"""
         os.makedirs(os.path.dirname(outfile), exist_ok=True)
         try:
@@ -34,12 +34,10 @@ class DebianControlFileParser:
                 with open(outfile, "w") as f:
                     json.dump(self.clean_pkg_info, f, indent=4)
 
-            print(f"SUCCESS: wrote to file {outfile}")
-
         except FileNotFoundError:
-            print(f"ERROR: {outfile} not found")
+            pass
         except:
-            print(f"ERROR: cannot write to file {outfile}")
+            pass
 
     # Private
     def __get_raw_info(self, text):

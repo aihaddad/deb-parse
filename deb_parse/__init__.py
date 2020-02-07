@@ -1,0 +1,1 @@
+from deb_parse.parser import Parser
