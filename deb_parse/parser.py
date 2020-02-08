@@ -1,6 +1,7 @@
 import os
 import re
 import json
+import logging
 
 
 class Parser:
@@ -15,31 +16,52 @@ class Parser:
     """
 
     def __init__(self, file):
-        with open(file, "r") as f:
-            __file_text = f.read().strip()
-        packages = __file_text.split("\n\n")
+        file_text = self.__read_input(file)
+        packages = file_text.split("\n\n")
 
-        self.raw_pkg_info = [self.__get_raw_info(pkg) for pkg in packages]
-        self.clean_pkg_info = [self.__get_clean_info(pkg) for pkg in self.raw_pkg_info]
-        self.package_names = [pkg["name"] for pkg in self.raw_pkg_info]
+        if len(packages[0]) > 0:
+            self.raw_pkg_info = [self.__get_raw_info(pkg) for pkg in packages]
+            self.clean_pkg_info = [self.__get_clean_info(pkg) for pkg in self.raw_pkg_info]
+            self.pkg_names = [pkg["name"] for pkg in self.raw_pkg_info]
 
-    def to_json_file(self, outfile="./datastore/dpkgs.json", raw=False):
-        """Converts parsed data into JSON and outputs to file"""
+    def to_json_file(self, outfile="./datastore/dpkgs.json", names_only=False, raw=False):
+        """
+        Dumps parsed data into JSON output file
+
+        Attributes:
+        - outfile= str, default: './datastore/dpkgs.json'
+        - names_only= bool, default: False (if True supercedes other options, outputs list of names)
+        - raw= bool, default: False (if True outputs raw parse)
+
+        If both options are False, JSON will be based on clean package information
+        """
         os.makedirs(os.path.dirname(outfile), exist_ok=True)
         try:
-            if raw:
+            if names_only:
+                with open(outfile, "w") as f:
+                    json.dump(self.pkg_names, f, indent=4)
+            elif raw:
                 with open(outfile, "w") as f:
                     json.dump(self.raw_pkg_info, f, indent=4)
             else:
                 with open(outfile, "w") as f:
                     json.dump(self.clean_pkg_info, f, indent=4)
-
-        except FileNotFoundError:
-            pass
+            logging.info("extracted information to JSON file")
         except:
-            pass
+            logging.exception("unable to write to file")
 
     # Private
+    def __read_input(self, input_obj):
+        if type(input_obj) is not str:
+            raise TypeError("input must be string or string path to file")
+        elif os.path.exists(os.path.dirname(input_obj)):
+            with open(input_obj, "r") as f:
+                file_text = f.read().strip()
+            return file_text
+        else:
+            return input_obj.strip()
+
+
     def __get_raw_info(self, text):
         """Parses a Debian control file and returns raw dictionary"""
         # Extract package keys and values
@@ -47,11 +69,13 @@ class Parser:
         values = re.split(r"\s?[A-Za-z-]*: ", text)[1:]
 
         # Composing initial package info dict
-        pkg_name = values[0]
-        pkg_details = dict(zip(keys[1:], values[1:]))
-        pkg_dict = {"name": pkg_name, "details": pkg_details}
-
-        return pkg_dict
+        if len(values) > 0:
+            pkg_name = values[0]
+            pkg_details = dict(zip(keys[1:], values[1:]))
+            pkg_dict = {"name": pkg_name, "details": pkg_details}
+            return pkg_dict
+        else:
+            raise ValueError("file or text don't match Debian Control File schema")
 
     def __get_clean_info(self, pkg_raw_info):
         """Cleans up raw parsed package information and filters unneeded"""
