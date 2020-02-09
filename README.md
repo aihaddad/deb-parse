@@ -10,7 +10,7 @@ _A CLI functionality may be added later._
 
 Install using `pip`:
 
-```
+```bash
 $ pip install --user -e .
 ```
 
@@ -26,14 +26,14 @@ Initialze it with a valid Control File path or a string that follows the schema:
 ```python
 my_parser = Parse("/var/lib/dpkg/status")
 ```
-__Note:__ A `TypeError` is raised if the input is not `str`
-__Note:__ A `ValueError` is raised if the input string or path don't follow the schema
+- __Note:__ A `TypeError` is raised if the input is not `str`
+- __Note:__ A `ValueError` is raised if the input string or path don't follow the schema
 
 If everything goes well, `my_parser` will now have three accessible attributes:
 
-* `my_parser.pkg_names` outputs a `list` of package names in the input
-* `my_parser.raw_pkg_info` outputs a `list` of raw `dict` objects as seen in input
-* `my_parser.clean_pkg_info` outputs a `list` of cleaned up `dict` objects with more useful information
+- `my_parser.pkg_names` outputs a `list` of package names in the input
+- `my_parser.raw_pkg_info` outputs a `list` of raw `dict` objects as seen in input
+- `my_parser.clean_pkg_info` outputs a `list` of cleaned up `dict` objects with more useful information
 
 _Examples:_
 
@@ -57,26 +57,27 @@ print(my_parser.clean_pkg_info)
 
 If you want, you can also dump the parsed information in a JSON file using `.to_json_file()`:
 
-Attributes:
-* outfile= str, default: './datastore/dpkgs.json'
-* names_only= bool, default: False (if True supercedes other options, outputs list of names)
-* raw= bool, default: False (if True outputs raw parse)
+_Attributes:_
 
-If both options are False, JSON will be based on clean package information
+- `outfile=str`, default: `'./datastore/dpkgs.json'`
+- `names_only=bool`, default: `False` (if `True` outputs list of names and cancels `raw` option)
+- `raw=bool`, default: `False` (if `True` outputs raw parse)
+
+If both options are `False`, JSON will be based on clean package information
 
 
 ## Development
 
 For working on `deb-parse`, you will need Python >= 3.7 and [`pipenv`][2] installed. Configure `pipenv` to create its `.venv` in the current folder if you want to use the VS-Code settings. With these installed, run the following command to create a virtualenv for the project and fetch the dependencies:
 
-```
+```bash
 $ pipenv install --dev
 ...
 ```
 
 Next, activate the virtual environment and get to work:
 
-```
+```bash
 $ pipenv shell
 ...
 (deb-parse) $
