@@ -12,8 +12,8 @@ DESCRIPTION = "Parses Debian Control-File formats."
 URL = "https://github.com/aihaddad/deb-parse.git"
 EMAIL = "aihaddad@outlook.com"
 AUTHOR = "Ahmed Elhaddad"
-REQUIRES_PYTHON = ">=3.6.0"
-VERSION = "0.1.0"
+REQUIRES_PYTHON = ">=3.7.0"
+VERSION = "0.1.1"
 # REQUIRED = []
 
 here = os.path.abspath(os.path.dirname(__file__))
