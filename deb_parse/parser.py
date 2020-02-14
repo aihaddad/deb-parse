@@ -65,8 +65,8 @@ class Parser:
     def __get_raw_info(self, text):
         """Parses a Debian control file and returns raw dictionary"""
         # Extract package keys and values
-        keys = [key[:-2].lower() for key in re.findall(r"[A-Za-z-]*: ", text)]
-        values = re.split(r"\s?[A-Za-z-]*: ", text)[1:]
+        keys = [key[:-2].lower() for key in re.findall(r"[A-Za-z-]*:\s", text)]
+        values = re.split(r"\s?[A-Za-z-]*:\s", text)[1:]
 
         # Composing initial package info dict
         if len(values) > 0:
