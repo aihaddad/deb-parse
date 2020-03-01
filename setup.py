@@ -13,7 +13,7 @@ URL = "https://github.com/aihaddad/deb-parse.git"
 EMAIL = "aihaddad@outlook.com"
 AUTHOR = "Ahmed Elhaddad"
 REQUIRES_PYTHON = ">=3.7.0"
-VERSION = "0.1.2rc1"
+VERSION = "0.1.2rc2"
 # REQUIRED = []
 
 here = os.path.abspath(os.path.dirname(__file__))
