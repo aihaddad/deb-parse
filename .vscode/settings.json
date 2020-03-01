@@ -1,5 +1,5 @@
 {
-    "python.pythonPath": ".venv/bin/python3.7",
+    "python.pythonPath": "/Users/aix/GoogleDrive/Development/python/deb_parse/.venv/bin/python3.7",
     "python.linting.enabled": true,
     "editor.formatOnSave": true,
     "python.formatting.provider": "black",
